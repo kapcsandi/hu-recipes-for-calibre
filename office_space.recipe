@@ -1,0 +1,25 @@
+import string, re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AdvancedUserRecipe1299071135(BasicNewsRecipe):
+    title          = u'Irodai patk\xe1nyok'
+    oldest_article = 1000
+    max_articles_per_feed = 100
+
+    feeds          = [(u'Office Space', u'http://officespace.blog.hu/rss')]
+    remove_javascript = True
+    reverse_article_order = True
+    use_embedded_content = False
+
+    filter_regexps = [r'www\.facebook\.com/sharer', 
+                      r'iwiw\.hu/pages/share',
+                      r'twitter\.com/home',
+                      r'google\.com/buzz/post',
+                      r'google\.com/reader/link',
+                      r'tumblr\.com/share']
+    preprocess_regexps = [
+        (re.compile(r'<p><a href="https://www.facebook.com/share.*?#comments.*?</p>', re.DOTALL|re.IGNORECASE),
+        lambda match: '<br />'),
+                         ]
+    
+

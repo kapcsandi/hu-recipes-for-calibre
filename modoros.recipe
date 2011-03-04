@@ -1,0 +1,24 @@
+import string, re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ModorosBlogHu(BasicNewsRecipe):
+    title          = u'Modoros Blog'
+    oldest_article = 1000
+    max_articles_per_feed = 100
+    reverse_article_order = True
+
+    feeds          = [(u'Modoros Blog', u'http://modoros.blog.hu/rss')]
+    remove_javascript = True
+    use_embedded_content = False
+    
+    filter_regexps = [r'www\.facebook\.com/sharer', 
+                      r'iwiw\.hu/pages/share',
+                      r'twitter\.com/home',
+                      r'google\.com/buzz/post',
+                      r'google\.com/reader/link',
+                      r'tumblr\.com/share']
+    preprocess_regexps = [
+        (re.compile(r'<!--megosztas -->.*?</body>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</body>'),
+       ]
+

@@ -1,1 +1,14 @@
-Some Calibre recipes for (mostly) hungarian websites and blogs.
+Some Calibre recipes for (mostly) Hungarian websites (and blogs).
+
+The recipes can be run via the Calibre GUI, or via the installed Calibre tools, e.g.:
+
+    ebook-convert \
+        SOME.recipe \
+        OUTPUTFILE.EBOOKFORMAT \
+        --output-profile kindle 
+        -vv 
+        --pretty-print 
+        --change-justification justify 
+        -d dbdir
+
+In the above case, the e-book-format should be mobi, as it's the desired format for the selected profile (kindle). The lines below the OUTPUTFILE.EBOOKFORMAT are not necessary.

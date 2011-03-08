@@ -1,0 +1,195 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2010, Zsolt Botykai <zsoltika@gmail.com>'
+'''
+A recipe for Calibre to fetch http://www.es.hu , and generate an article list 
+to fetch, then get rid of the unnecessary scrap at the site (e.g. facebook 
+buttons, ads...)
+'''
+
+# The recipe modifies the case of titles and searches via regexs
+import string, re
+from string import capwords
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+
+
+class EletEsIrodalom(BasicNewsRecipe):
+
+
+    title                   = u"Élet és Irodalom"
+    __author__              = 'Zsolt Botykai'
+    description             = u"Élet és Irodalom"
+    INDEX                   = 'http://www.es.hu/'
+    language                = 'hu'
+    remove_javascript       = True
+    remove_empty_feeds      = True
+    no_stylesheets          = True
+
+    remove_tags = [
+                       dict(name='div', attrs={'id':[ 'right', \
+                                                         'banner', \
+                                                         'head_left', \
+                             'head_right', \
+                             'menu', \
+                             'foot', \
+                             'leaddocument' \
+                             'separator' \
+                             'left' \
+                       ]}) , 
+                       dict(name='div', attrs={'class':[ 'skybanner', \
+                             'clearfloat' \
+                             'separator' \
+                             'almenu' \
+                       ]})
+               ]
+
+    # without the background color setup, the conversion to pdf produced 
+    # black pages with white text 
+    extra_css = '''
+                    body { background-color: white; color: black }
+                    .article1 { text-align: justify; }
+                    p { text-align: justify; }
+                    .calibre8 { text-align: justify; }
+                '''
+
+    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+
+    def get_cover_url(self):
+        return 'http://www.es.hu/images/logo.jpg'
+
+    def parse_index(self):
+        articles = []
+
+        soup = self.index_to_soup(self.INDEX)
+        section_title = soup.find('div', attrs={'class':'fpdocument'})
+        if section_title is not None:
+            section_name = self.tag_to_string(section_title).strip().split()[-2:]
+            if section_name:
+                self.timefmt = ' [%s]'%(' '.join(section_name))
+
+        cover = soup.find('img', src=True, attrs={'class':'cover'})
+        if cover is not None:
+            self.cover_url = cover['src']
+
+        feeds = []
+        for section in soup.findAll('div', attrs={'class':'fpdocument'}):
+            section_title = section.find('a', attrs={'class':'rovat'})
+            section_title = string.capwords(self.tag_to_string(section_title))
+            articles = []
+            article_found = section.find('li')
+            if article_found:
+                for article in section.findAll('li'):
+                    article_title = self.tag_to_string(article).replace(":"," ").capitalize()
+                    a = article.find('a', href=True)
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'http://www.es.hu'+url
+
+                    p = article.find('p', attrs={'align':'left'})
+                    desc = None
+                    logurl='#'+url+'#'
+                    self.log('\tFound article:', article_title, 'at', logurl)
+
+                    if p is not None:
+                        desc = self.tag_to_string(p)
+                        self.log('\t\t', desc)
+                    articles.append({'title':article_title, 'url':url, 'description':desc,
+                        'date':''})
+            else:
+                    article = section.find('a', attrs={'class':'title'})
+                    if article:
+                            article_title = self.tag_to_string(article).capitalize().replace(":"," ")
+                            article_author = section.find('div', attrs={'class':'author'})
+
+                            if article_author:
+                                    author_name = capwords(self.tag_to_string(article_author))
+
+                                    if author_name != '':
+                                            article_title = author_name + ' - ' + article_title
+
+                            a = section.find('a', href=True, attrs={'class':'title'})
+                            url = a['href']
+
+                            if url.startswith('/'):
+                                url = 'http://www.es.hu'+url
+
+                            logurl='#'+url+'#'
+                            self.log('\tFound article:', article_title , 'at', logurl)
+
+                            articles.append({'title':article_title, 'url':url, 'description':'',
+                                'date':''})
+
+
+            feeds.append((section_title, articles))
+
+        return feeds
+
+    def preprocess_html(self, soup):
+
+        for rmstyles in ['float: right;margin-left: 5px; margin-bottom: 5px;', 'doc_tags']:
+            for rmdivs in soup.findAll('div', attrs={'style':rmstyles}): 
+                rmdivs.extract()
+
+        orig_title = soup.find('div', attrs={'class':'doc_title'})
+        page_title = self.tag_to_string(orig_title).capitalize()
+
+        if page_title:
+            page_author = soup.find('div', attrs={'class':'doc_author'})
+            if page_author:
+                author_name = self.tag_to_string(page_author)
+                page_author.extract()
+                page_title = author_name + " - " + page_title
+
+                
+        tag = Tag(soup, "h2")
+        tag['class'] = "headline"
+        tag.insert(0, page_title)
+        orig_title.replaceWith(tag)
+
+        orig_subtitle = soup.find('div', attrs={'class':'doc_subtitle'})
+        if orig_subtitle:
+            subtitle = self.tag_to_string(orig_subtitle)
+            tag = Tag(soup, "h3")
+            tag['class'] = "headline"
+            tag.insert(0, capwords(subtitle))
+            orig_subtitle.replaceWith(tag)
+    
+        orig_issue =  soup.find('div', attrs={'class':'lapszam'})
+        if orig_issue:
+            issue = self.tag_to_string(orig_issue)
+            tag = Tag(soup, "h5")
+            tag['class'] = "headline"
+            tag.insert(0, issue)
+            orig_issue.replaceWith(tag)
+                
+        return soup
+
+
+
+
+    def postprocess_html(self, soup, first):
+        for rmattrs in [  'almenu', 'doc_author_docs', 'doc_print' ]:
+            for rmdivs in soup.findAll('div', attrs={'class':rmattrs}): 
+                rmdivs.extract()
+
+        for pz in soup.findAll('p', attrs={'align':'left'}): 
+            para = self.tag_to_string(pz)
+            if re.search('^( |&#160;)*$',para):
+                tag = Tag(soup, "div")
+                tag['class'] = "removable"
+                tag.insert(0, '')
+                pz.replaceWith(tag)
+
+            for brz in soup.findAll('br'):
+                tag = Tag(soup, "div")
+                tag['class'] = "removable"
+                tag.insert(0, '')
+                brz.replaceWith(tag)
+
+        return soup
+
+    
+

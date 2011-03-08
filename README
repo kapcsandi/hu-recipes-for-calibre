@@ -12,3 +12,5 @@ The recipes can be run via the Calibre GUI, or via the installed Calibre tools, 
         -d dbdir
 
 In the above case, the e-book-format should be mobi, as it's the desired format for the selected profile (kindle). The lines below the OUTPUTFILE.EBOOKFORMAT are not necessary.
+
+The recipe_2_mobi_and_pdf.sh can be used for converting any of the recipes to both  mobi (for Kindles) and PDF formats.

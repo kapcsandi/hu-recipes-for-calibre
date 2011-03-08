@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<todo version="0.1.20">
+    <note priority="high" time="1299591738">
+        Convert the recipe_2_mobi_and_pdf.sh script to be more general: should be able to convert any of the recipes, and PDF output should be optional.
+    </note>
+    <note priority="medium" time="1299591908">
+        Create recipes my favourite blogs and newspapers.
+        <note priority="medium" time="1299591925">
+            NOL.hu
+        </note>
+    </note>
+</todo>

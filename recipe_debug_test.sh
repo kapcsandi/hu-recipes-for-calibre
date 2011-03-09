@@ -1,0 +1,8 @@
+#!/bin/bash
+RECIPE_NAME=`basename "${1}" .recipe`
+ebook-convert "${1}" "debugdir/${RECIPE_NAME}/" \
+ --smarten-punctuation \
+ --change-justification justify \
+ -vv \
+ --debug-pipeline debugdir \
+ | tee debug.log

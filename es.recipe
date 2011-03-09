@@ -50,9 +50,7 @@ class EletEsIrodalom(BasicNewsRecipe):
     # black pages with white text 
     extra_css = '''
                     body { background-color: white; color: black }
-                    .article1 { text-align: justify; }
                     p { text-align: justify; }
-                    .calibre8 { text-align: justify; }
                 '''
 
     preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]

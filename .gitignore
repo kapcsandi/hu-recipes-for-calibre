@@ -1,0 +1,4 @@
+*.mobi
+*.pdf
+*.log
+debugdir/*

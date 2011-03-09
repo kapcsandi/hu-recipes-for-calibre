@@ -14,10 +14,7 @@ from string import capwords
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
-
-
 class EletEsIrodalom(BasicNewsRecipe):
-
 
     title                   = u"Élet és Irodalom"
     __author__              = 'Zsolt Botykai'
@@ -120,7 +117,6 @@ class EletEsIrodalom(BasicNewsRecipe):
                             articles.append({'title':article_title, 'url':url, 'description':'',
                                 'date':''})
 
-
             feeds.append((section_title, articles))
 
         return feeds
@@ -141,7 +137,9 @@ class EletEsIrodalom(BasicNewsRecipe):
                 page_author.extract()
                 page_title = author_name + " - " + page_title
 
+                                    
                 
+
         tag = Tag(soup, "h2")
         tag['class'] = "headline"
         tag.insert(0, page_title)
@@ -165,10 +163,14 @@ class EletEsIrodalom(BasicNewsRecipe):
                 
         return soup
 
-
-
-
     def postprocess_html(self, soup, first):
+       
+        favicon = soup.find('link', href=True)
+        url = favicon['href']
+        self.log("found favicon with", url)
+        if url == "favicon.ico":
+            favicon.extract()
+
         for rmattrs in [  'almenu', 'doc_author_docs', 'doc_print' ]:
             for rmdivs in soup.findAll('div', attrs={'class':rmattrs}): 
                 rmdivs.extract()

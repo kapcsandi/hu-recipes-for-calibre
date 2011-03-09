@@ -50,7 +50,9 @@ class EletEsIrodalom(BasicNewsRecipe):
                     p { text-align: justify; }
                 '''
 
-    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
+                          (re.compile(r'<p align="left"'), lambda m: '<p')
+                         ]
 
     def get_cover_url(self):
         return 'http://www.es.hu/images/logo.jpg'

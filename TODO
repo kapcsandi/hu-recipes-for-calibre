@@ -14,8 +14,11 @@
     </note>
     <note priority="medium" time="1299658495">
         Improve the existing recipes.
-        <note priority="high" time="1299674483">
+        <note priority="high" time="1299674483" done="1299677718">
             The es.recipe must use justified p's if possible.
+            <comment>
+                preprocess regex to the rescue...
+            </comment>
         </note>
         <note priority="medium" time="1299659210">
             The es.recipe should be converted to use the section pages as indecies instead of the es.hu homepage.

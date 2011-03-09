@@ -5,4 +5,5 @@ ebook-convert "${1}" "debugdir/${RECIPE_NAME}/" \
  --change-justification justify \
  -vv \
  --debug-pipeline debugdir \
+ --test \
  | tee debug.log

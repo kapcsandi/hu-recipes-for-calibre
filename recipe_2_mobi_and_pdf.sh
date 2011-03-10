@@ -76,5 +76,5 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.pdf" \
  --margin-left 72.0  \
  --margin-right 72.0  \
  -vv \
- --debug-pipeline debugdiri/pdf \
+ --debug-pipeline debugdir/pdf \
  | tee pdfdebug.log

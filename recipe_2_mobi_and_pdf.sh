@@ -60,7 +60,7 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.mobi" \
  --comments "Élet és Irodalom" \
  --title "Élet és Irodalom" \
  -vv \
- --debug-pipeline mobidebugdir \
+ --debug-pipeline debugdir/mobi \
  | tee mobidebug.log
 
 [[ ${PDF} -eq 1 ]] && \
@@ -76,5 +76,5 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.pdf" \
  --margin-left 72.0  \
  --margin-right 72.0  \
  -vv \
- --debug-pipeline pdfdebugdir \
+ --debug-pipeline debugdiri/pdf \
  | tee pdfdebug.log

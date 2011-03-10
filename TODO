@@ -23,8 +23,11 @@
         <note priority="medium" time="1299659210">
             The es.recipe should be converted to use the section pages as indecies instead of the es.hu homepage.
         </note>
-        <note priority="medium" time="1299678115">
+        <note priority="medium" time="1299678115" done="1299770673">
             Clean up modoros.recipe and it's output.
+            <comment>
+                Several improvments, see git log.
+            </comment>
         </note>
         <note priority="medium" time="1299678142">
             Clean up office_space.recipe and it's output.

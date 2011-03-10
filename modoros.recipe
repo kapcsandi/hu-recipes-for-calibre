@@ -18,7 +18,8 @@ class ModorosBlogHu(BasicNewsRecipe):
     preprocess_regexps      = [
         (re.compile(r'<!--megosztas -->.*?</body>', re.DOTALL|re.IGNORECASE),
          lambda match: '</body>'),
-        (re.compile(r'<p align="left"'), lambda m: '<p')
+        (re.compile(r'<p align="left"'), lambda m: '<p'),
+        (re.compile(r'<p>( |&nbsp;)*?</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
     ]
     extra_css = '''
                     body { background-color: white; color: black }

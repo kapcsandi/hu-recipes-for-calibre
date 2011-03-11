@@ -11,6 +11,12 @@
         <note priority="medium" time="1299591925">
             NOL.hu
         </note>
+        <note priority="medium" time="1299826320">
+            Create recipe for Malackaraj.blog.hu
+        </note>
+        <note priority="medium" time="1299826447">
+            Create recipe for w.blog.hu.
+        </note>
     </note>
     <note priority="medium" time="1299658495">
         Improve the existing recipes.
@@ -20,14 +26,14 @@
                 preprocess regex to the rescue...
             </comment>
         </note>
-        <note priority="medium" time="1299659210">
-            The es.recipe should be converted to use the section pages as indecies instead of the es.hu homepage.
-        </note>
         <note priority="medium" time="1299678115" done="1299770673">
             Clean up modoros.recipe and it's output.
             <comment>
                 Several improvments, see git log.
             </comment>
+        </note>
+        <note priority="medium" time="1299659210">
+            The es.recipe should be converted to use the section pages as indecies instead of the es.hu homepage.
         </note>
         <note priority="medium" time="1299678142">
             Clean up office_space.recipe and it's output.

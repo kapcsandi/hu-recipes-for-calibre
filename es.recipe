@@ -54,6 +54,8 @@ class EletEsIrodalom(BasicNewsRecipe):
                           (re.compile(r'<p align="left"'), lambda m: '<p')
                          ]
 
+    masthead_url='http://www.es.hu/images/logo.jpg'
+
     def get_cover_url(self):
         return 'http://www.es.hu/images/logo.jpg'
 
@@ -76,10 +78,12 @@ class EletEsIrodalom(BasicNewsRecipe):
             section_title = section.find('a', attrs={'class':'rovat'})
             section_title = string.capwords(self.tag_to_string(section_title))
             articles = []
+            self.log('Found section: ', section_title)
             article_found = section.find('li')
             if article_found:
                 for article in section.findAll('li'):
-                    article_title = self.tag_to_string(article).replace(":"," ").capitalize()
+                    article_title = self.tag_to_string(article).replace(":"," ")
+                    article_title = article_title.capitalize()
                     a = article.find('a', href=True)
                     url = a['href']
                     if url.startswith('/'):
@@ -88,17 +92,19 @@ class EletEsIrodalom(BasicNewsRecipe):
                     p = article.find('p', attrs={'align':'left'})
                     desc = None
                     logurl='#'+url+'#'
-                    self.log('\tFound article:', article_title, 'at', logurl)
+                    self.log('\tFound article: ', article_title, 'at', logurl)
 
                     if p is not None:
                         desc = self.tag_to_string(p)
                         self.log('\t\t', desc)
+
                     articles.append({'title':article_title, 'url':url, 'description':desc,
                         'date':''})
             else:
                     article = section.find('a', attrs={'class':'title'})
                     if article:
-                            article_title = self.tag_to_string(article).capitalize().replace(":"," ")
+                            article_title = self.tag_to_string(article).replace(":"," ")
+                            article_title = article_title.capitalize()
                             article_author = section.find('div', attrs={'class':'author'})
 
                             if article_author:
@@ -137,7 +143,8 @@ class EletEsIrodalom(BasicNewsRecipe):
             if page_author:
                 author_name = self.tag_to_string(page_author)
                 page_author.extract()
-                page_title = author_name + " - " + page_title
+                page_title = capwords(author_name) + " - " + \
+                             page_title.capitalize()
 
                                     
                 

@@ -82,7 +82,7 @@ class EletEsIrodalom(BasicNewsRecipe):
             article_found = section.find('li')
             if article_found:
                 for article in section.findAll('li'):
-                    article_title = self.tag_to_string(article).replace(":"," ")
+                    article_title = self.tag_to_string(article).replace(": "," - ")
                     article_title = capwords(article_title)
                     a = article.find('a', href=True)
                     url = a['href']
@@ -103,7 +103,7 @@ class EletEsIrodalom(BasicNewsRecipe):
             else:
                     article = section.find('a', attrs={'class':'title'})
                     if article:
-                            article_title = self.tag_to_string(article).replace(":"," ")
+                            article_title = self.tag_to_string(article).replace(": "," - ")
                             article_title = capwords(article_title)
                             article_author = section.find('div', attrs={'class':'author'})
 

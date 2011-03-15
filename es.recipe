@@ -83,7 +83,7 @@ class EletEsIrodalom(BasicNewsRecipe):
             if article_found:
                 for article in section.findAll('li'):
                     article_title = self.tag_to_string(article).replace(":"," ")
-                    article_title = article_title.capitalize()
+                    article_title = capwords(article_title)
                     a = article.find('a', href=True)
                     url = a['href']
                     if url.startswith('/'):
@@ -92,7 +92,7 @@ class EletEsIrodalom(BasicNewsRecipe):
                     p = article.find('p', attrs={'align':'left'})
                     desc = None
                     logurl='#'+url+'#'
-                    self.log('\tFound article: ', article_title, 'at', logurl)
+                    self.log('1. \tFound article: ', article_title, 'at', logurl)
 
                     if p is not None:
                         desc = self.tag_to_string(p)
@@ -104,7 +104,7 @@ class EletEsIrodalom(BasicNewsRecipe):
                     article = section.find('a', attrs={'class':'title'})
                     if article:
                             article_title = self.tag_to_string(article).replace(":"," ")
-                            article_title = article_title.capitalize()
+                            article_title = capwords(article_title)
                             article_author = section.find('div', attrs={'class':'author'})
 
                             if article_author:
@@ -120,7 +120,7 @@ class EletEsIrodalom(BasicNewsRecipe):
                                 url = 'http://www.es.hu'+url
 
                             logurl='#'+url+'#'
-                            self.log('\tFound article:', article_title , 'at', logurl)
+                            self.log('2. \tFound article:', article_title , 'at', logurl)
 
                             articles.append({'title':article_title, 'url':url, 'description':'',
                                 'date':''})

@@ -6,8 +6,8 @@ from hashlib import md5
 
 class KonyvesBlogHu(BasicNewsRecipe):
     __author__              = 'Zsolt Botykai'
-    title                   = u'Könyves Blog'
-    description             = u"Konyves.blog.hu"
+    title                   = u'KÃ¶nyves Blog'
+    description             = u'Konyves.blog.hu'
     oldest_article          = 10000
     max_articles_per_feed   = 10000
     reverse_article_order   = True
@@ -15,7 +15,7 @@ class KonyvesBlogHu(BasicNewsRecipe):
     remove_javascript       = True
     remove_empty_feeds      = True
     no_stylesheets          = True
-    feeds                   = [(u'Könyves Blog', u'http://konyves.blog.hu/rss')]
+    feeds                   = [(u'KÃ¶nyves Blog', u'http://konyves.blog.hu/rss')]
     remove_javascript       = True
     use_embedded_content    = False
     keep_only_tags = [                

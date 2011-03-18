@@ -6,7 +6,7 @@ from hashlib import md5
 
 class OfficeSpaceBlogHu(BasicNewsRecipe):
     __author__              = 'Zsolt Botykai'
-    title                   = u'Office Space Blog'
+    title                   = u'Irodai patkányok blog'
     description             = u"officespace.blog.hu"
     oldest_article          = 10000
     max_articles_per_feed   = 10000
@@ -18,8 +18,6 @@ class OfficeSpaceBlogHu(BasicNewsRecipe):
     feeds                   = [(u'Office Space Blog', u'http://officespace.blog.hu/rss')]
     remove_javascript       = True
     use_embedded_content    = False
-    title          = u'Irodai patkényok'
-    feeds          = [(u'Office Space', u'http://officespace.blog.hu/rss')]
 
     masthead_url='http://m.blog.hu/of/officespace/ipfejlec7.jpg'
 

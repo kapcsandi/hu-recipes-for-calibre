@@ -18,11 +18,6 @@ class OfficeSpaceBlogHu(BasicNewsRecipe):
     feeds                   = [(u'Office Space Blog', u'http://officespace.blog.hu/rss')]
     remove_javascript       = True
     use_embedded_content    = False
-<<<<<<< HEAD
-=======
-    title          = u'Irodai patkányok'
->>>>>>> 5bf0a79035cad5a2dd68c56b6508a31644364d63
-    feeds          = [(u'Office Space', u'http://officespace.blog.hu/rss')]
 
     masthead_url='http://m.blog.hu/of/officespace/ipfejlec7.jpg'
 

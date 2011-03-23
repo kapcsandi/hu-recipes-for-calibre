@@ -25,6 +25,25 @@ class KonyvesBlogHu(BasicNewsRecipe):
 
     masthead_url='http://m.blog.hu/w/w/head_2008.jpg'
 
+    preprocess_regexps      = [ 
+        (re.compile(r'<p align="left"'), lambda m: '<p'),
+        (re.compile(r'<noscript.+?noscript>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<img style="position: absolute;top:-10px.+?>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<body.*?<div class="post vis_public"', re.DOTALL|re.IGNORECASE),
+         lambda match: '<body><div class="post vis_public"'),
+        (re.compile(r'<h3 style="float:none;clear:both">.*', re.DOTALL|re.IGNORECASE),
+         lambda match: '</body>'),
+        (re.compile(r'<h3 class="date"', re.DOTALL|re.IGNORECASE), 
+         lambda match: '<h3 class="date" style="font-size: 80%;"'),
+        (re.compile(r'<h3 class="tags"', re.DOTALL|re.IGNORECASE), 
+         lambda match: '<h3 class="tags" style="font-size: 80%;"'),
+    ]
+
+    remove_tags = [
+                       dict(name='img', attrs={'style':['position: absolute;top:-10px;left:-10px;']}) ,
+                       dict(name='span', attrs={'class':['hozzaszolas-szamlalo']})  
+                  ]
+
     def get_cover_url(self):
         return 'http://m.blog.hu/w/w/head_2008.jpg'
 
@@ -35,8 +54,14 @@ class KonyvesBlogHu(BasicNewsRecipe):
                    tstr = taglink.string + ','
                    taglink.replaceWith(tstr)
         
-        for spanlink in soup.findAll('span', attrs={'class':'author'}):
-            for authlink in spanlink.findAll('a'):
+        for h2link in soup.findAll('h2'):
+            for titllink in h2link.findAll('a'):
+                if titllink.string is not None:
+                   tstr = titllink.string
+                   titllink.replaceWith(tstr)
+
+        for h3link in soup.findAll('h3', attrs={'class':'date'}):
+            for authlink in h3link.findAll('a'):
                 if authlink.string is not None:
                    tstr = authlink.string
                    authlink.replaceWith(tstr)

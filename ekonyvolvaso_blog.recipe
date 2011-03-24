@@ -23,16 +23,54 @@ class EkonyvolvasoBlogHu(BasicNewsRecipe):
                     body { background-color: white; color: black }
                 '''
 
-    masthead_url=''
+    masthead_url='http://farm3.static.flickr.com/2679/4070018782_a9f76393b0_d.jpg'
 
     preprocess_regexps      = [ 
+        (re.compile(r'<p align="left"'), lambda m: '<p'),
+        (re.compile(r'<noscript.+?noscript>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<img style="position: absolute;top:-10px.+?>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<body.*?<div class="post vis_public"', re.DOTALL|re.IGNORECASE),
+         lambda match: '<body><div class="post vis_public"'),
+        (re.compile(r'<div class="related">.*', re.DOTALL|re.IGNORECASE),
+         lambda match: '</body>'),
+        (re.compile(r'<div id="fb-root".*?<h3 class="tags"', re.DOTALL|re.IGNORECASE),
+         lambda match: '<h3 class="tags"'),
+        (re.compile(r'<h3 class="date"', re.DOTALL|re.IGNORECASE), 
+         lambda match: '<h3 class="date" style="font-size: 80%;"'),
+        (re.compile(r'<h3 class="tags"', re.DOTALL|re.IGNORECASE), 
+         lambda match: '<h3 class="tags" style="font-size: 80%;"'),
     ]
 
     remove_tags = [
+                       dict(name='div', attrs={'id':['fb-root']}),
+                       dict(name='div', attrs={'class':['blh_share_fblike']}),
+                       dict(name='img', attrs={'style':['position: absolute;top:-10px;left:-10px;']}) ,
+                       dict(name='span', attrs={'class':['hozzaszolas-szamlalo']})  
                   ]
 
     def get_cover_url(self):
-        return ''
+        return 'http://farm3.static.flickr.com/2679/4070018782_a9f76393b0_d.jpg'
+
+    def preprocess_html(self, soup):
+        for tagz in soup.findAll('h3', attrs={'class':'tags'}):
+            for taglink in tagz.findAll('a'):
+                if taglink.string is not None:
+                   tstr = taglink.string + ','
+                   taglink.replaceWith(tstr)
+        
+        for h2link in soup.findAll('h2'):
+            for titllink in h2link.findAll('a'):
+                if titllink.string is not None:
+                   tstr = titllink.string
+                   titllink.replaceWith(tstr)
+
+        for h3link in soup.findAll('h3', attrs={'class':'date'}):
+            for authlink in h3link.findAll('a'):
+                if authlink.string is not None:
+                   tstr = authlink.string
+                   authlink.replaceWith(tstr)
+
+        return soup
 
     # As seen here: http://www.mobileread.com/forums/showpost.php?p=1295505&postcount=10
 #    def parse_feeds(self):

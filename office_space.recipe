@@ -105,3 +105,4 @@ class OfficeSpaceBlogHu(BasicNewsRecipe):
 
         return feeds
 
+# Release: v20110325

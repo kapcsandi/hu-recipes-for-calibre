@@ -87,3 +87,4 @@ class ModorosBlogHu(BasicNewsRecipe):
 
         return feeds
 
+# Release: v20110325

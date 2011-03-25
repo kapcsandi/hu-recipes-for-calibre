@@ -201,4 +201,4 @@ class EletEsIrodalom(BasicNewsRecipe):
         return soup
 
     
-
+# Release: v20110325

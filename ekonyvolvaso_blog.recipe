@@ -4,10 +4,10 @@ from calibre.constants import config_dir, CONFIG_DIR_MODE
 import os, os.path, urllib
 from hashlib import md5
 
-class OfficeSpaceBlogHu(BasicNewsRecipe):
+class EkonyvolvasoBlogHu(BasicNewsRecipe):
     __author__              = 'Zsolt Botykai'
-    title                   = u'Irodai patkányok blog'
-    description             = u"officespace.blog.hu"
+    title                   = u'Ekönyvolvasó Blog'
+    description             = u'ekonyvolvaso.blog.hu'
     oldest_article          = 10000
     max_articles_per_feed   = 10000
     reverse_article_order   = True
@@ -15,39 +15,41 @@ class OfficeSpaceBlogHu(BasicNewsRecipe):
     remove_javascript       = True
     remove_empty_feeds      = True
     no_stylesheets          = True
-    feeds                   = [(u'Office Space Blog', u'http://officespace.blog.hu/rss')]
+    feeds                   = [(u'Ekönyvolvasó Blog', u'http://ekonyvolvaso.blog.hu/rss')]
     remove_javascript       = True
     use_embedded_content    = False
 
-    masthead_url='http://m.blog.hu/of/officespace/ipfejlec7.jpg'
-
-    keep_only_tags = [                
-                    dict(name='div', attrs={'id':['mainWrapper']})
-                    ]
-
-    #   1.: I like justified lines more
-    #   2.: remove empty paragraphs
-    #   3.: drop header and sidebar
-    #   4.: drop comments counter
-    #   5.: drop everything after article-tags
-    # 6-8.: drop audit images
-    
-    preprocess_regexps = [
-        (re.compile(r'<p align="left"'), lambda m: '<p'),
-        (re.compile(r'<p>( |&nbsp;)*?</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<body[^>]+>.*?<div id="mainIn"', re.DOTALL|re.IGNORECASE), lambda match: '<body><div id="mainIn"'),
-        (re.compile(r'<h3 class="comments">.*?</h3>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<div class="related">.*?</body>', re.DOTALL|re.IGNORECASE), lambda match: '<body>'),
-        (re.compile(r'<img style="position: absolute;" src="[^"]+pixel\?uc.*?>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<noscript.+?noscript>', re.DOTALL|re.IGNORECASE), lambda m: ''),
-        (re.compile(r'<img style="position: absolute;top:-10px.+?>', re.DOTALL|re.IGNORECASE), lambda m: ''),
-                         ]
     extra_css = '''
                     body { background-color: white; color: black }
                 '''
 
+    masthead_url='http://farm3.static.flickr.com/2679/4070018782_a9f76393b0_d.jpg'
+
+    preprocess_regexps      = [ 
+        (re.compile(r'<p align="left"'), lambda m: '<p'),
+        (re.compile(r'<noscript.+?noscript>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<img style="position: absolute;top:-10px.+?>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<body.*?<div class="post vis_public"', re.DOTALL|re.IGNORECASE),
+         lambda match: '<body><div class="post vis_public"'),
+        (re.compile(r'<div class="related">.*', re.DOTALL|re.IGNORECASE),
+         lambda match: '</body>'),
+        (re.compile(r'<div id="fb-root".*?<h3 class="tags"', re.DOTALL|re.IGNORECASE),
+         lambda match: '<h3 class="tags"'),
+        (re.compile(r'<h3 class="date"', re.DOTALL|re.IGNORECASE), 
+         lambda match: '<h3 class="date" style="font-size: 80%;"'),
+        (re.compile(r'<h3 class="tags"', re.DOTALL|re.IGNORECASE), 
+         lambda match: '<h3 class="tags" style="font-size: 80%;"'),
+    ]
+
+    remove_tags = [
+                       dict(name='div', attrs={'id':['fb-root']}),
+                       dict(name='div', attrs={'class':['blh_share_fblike']}),
+                       dict(name='img', attrs={'style':['position: absolute;top:-10px;left:-10px;']}) ,
+                       dict(name='span', attrs={'class':['hozzaszolas-szamlalo']})  
+                  ]
+
     def get_cover_url(self):
-        return 'http://m.blog.hu/of/officespace/ipfejlec7.jpg'
+        return 'http://farm3.static.flickr.com/2679/4070018782_a9f76393b0_d.jpg'
 
     def preprocess_html(self, soup):
         for tagz in soup.findAll('h3', attrs={'class':'tags'}):
@@ -56,10 +58,17 @@ class OfficeSpaceBlogHu(BasicNewsRecipe):
                    tstr = taglink.string + ','
                    taglink.replaceWith(tstr)
         
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
+        for h2link in soup.findAll('h2'):
+            for titllink in h2link.findAll('a'):
+                if titllink.string is not None:
+                   tstr = titllink.string
+                   titllink.replaceWith(tstr)
+
+        for h3link in soup.findAll('h3', attrs={'class':'date'}):
+            for authlink in h3link.findAll('a'):
+                if authlink.string is not None:
+                   tstr = authlink.string
+                   authlink.replaceWith(tstr)
 
         return soup
 
@@ -82,7 +91,7 @@ class OfficeSpaceBlogHu(BasicNewsRecipe):
                with file(feed_fn) as f:
                    for h in f:
                        past_items.add(h.strip())
-                       
+                      
             cur_items = set()
             for article in feed.articles[:]:
                 item_hash = md5()

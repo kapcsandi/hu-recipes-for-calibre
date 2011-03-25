@@ -25,13 +25,61 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
     masthead_url='http://nol.hu/_design/image/logo_nol_live.jpg'
 
     preprocess_regexps      = [ 
+        (re.compile(r'<h4>', re.IGNORECASE), 
+         lambda match: '<h4 style="font-size: 80%;">'),
     ]
-
+    keep_only_tags          = [
+                       dict(name='td', attrs={'class':['content']}) ,
+    ]
     remove_tags = [
-                  ]
+                       dict(name='div', attrs={'class':['ad-container-outer',\
+                                                        'tags noborder',\
+                                                        'video-container',\
+                                                        'h']}) ,
+                       dict(name='div', attrs={'style':['width:17px; height:17px; background-color:#8D0648; margin-bottom:25px; float:right;']}) ,
+                       dict(name='td', attrs={'class':['foot']}) ,
+                       dict(name='tfoot', ) ,
+    ]
 
     def get_cover_url(self):
         return 'http://nol.hu/_design/image/logo_nol_live.jpg'
+
+    def convert_adurls(self,url):
+        if url.find('feedsportal.com'):
+            url=url.replace('0L','').\
+                    replace('0B','.').\
+                    replace('0C','/').\
+                    replace('0E','-').\
+                    replace('0I','_')
+            url=url[url.rfind('nol.hu'):]
+
+            if url.rfind('.htm'):
+                url=url[:url.rfind('/')]
+            url=re.sub(r'^(.*?)(\d\d)A(\d\d\d)A(\d\d\d)(-.*?)','\\1\\2\\3\\4\\5',url)
+
+        return url
+
+    def preprocess_html(self, soup):
+        for h4 in soup.findAll('h4',):
+            for komlink in h4.findAll('a'):
+                if komlink['href'] == '#kommentek' :
+                   komlink.extract()
+        
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               astr = alink.string
+               alink.replaceWith(astr)
+
+        return soup
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                article.url='http://'+self.convert_adurls(article.url)
+
+        return feeds
+        
 
     # As seen here: http://www.mobileread.com/forums/showpost.php?p=1295505&postcount=10
     #def parse_feeds(self):

@@ -24,8 +24,8 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
 
     masthead_url='http://nol.hu/_design/image/logo_nol_live.jpg'
 
-    preprocess_regexps      = [ 
-        (re.compile(r'<h4>', re.IGNORECASE), 
+    preprocess_regexps      = [
+        (re.compile(r'<h4>', re.IGNORECASE),
          lambda match: '<h4 style="font-size: 80%;">'),
     ]
     keep_only_tags          = [
@@ -35,6 +35,7 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
                        dict(name='div', attrs={'class':['ad-container-outer',\
                                                         'tags noborder',\
                                                         'video-container',\
+                                                        'related-container',\
                                                         'h']}) ,
                        dict(name='div', attrs={'style':['width:17px; height:17px; background-color:#8D0648; margin-bottom:25px; float:right;']}) ,
                        dict(name='td', attrs={'class':['foot']}) ,
@@ -64,13 +65,20 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
             for komlink in h4.findAll('a'):
                 if komlink['href'] == '#kommentek' :
                    komlink.extract()
-        
+
         for alink in soup.findAll('a'):
             if alink.string is not None:
                astr = alink.string
                alink.replaceWith(astr)
 
         return soup
+
+    def postprocess_html(self, soup, first):
+        for t in soup.findAll(['table','tr','td','tfoot','thead','tbody']):
+            t.name = 'div'
+
+        return soup
+
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
@@ -79,7 +87,7 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
                 article.url='http://'+self.convert_adurls(article.url)
 
         return feeds
-        
+
 
     # As seen here: http://www.mobileread.com/forums/showpost.php?p=1295505&postcount=10
     #def parse_feeds(self):
@@ -100,7 +108,7 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
     #           with file(feed_fn) as f:
     #               for h in f:
     #                   past_items.add(h.strip())
-    #                  
+    #
     #        cur_items = set()
     #        for article in feed.articles[:]:
     #            item_hash = md5()

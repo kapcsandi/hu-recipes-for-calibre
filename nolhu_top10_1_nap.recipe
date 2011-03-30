@@ -51,12 +51,12 @@ class NolHuTopTenOneDay(BasicNewsRecipe):
                     replace('0B','.').\
                     replace('0C','/').\
                     replace('0E','-').\
-                    replace('0I','_')
+                    replace('0I','_').\
+                    replace('0A','0')
             url=url[url.rfind('nol.hu'):]
 
             if url.rfind('.htm'):
                 url=url[:url.rfind('/')]
-            url=re.sub(r'^(.*?)(\d\d)A(\d\d\d)A(\d\d\d)(-.*?)','\\1\\2\\3\\4\\5',url)
 
         return url
 

@@ -7,4 +7,4 @@ ebook-convert "${1}" "debugdir/${RECIPE_NAME}/" \
  -vv \
  --debug-pipeline debugdir \
  --test \
- | tee debug.log
+ | tee debugdir/debug.log

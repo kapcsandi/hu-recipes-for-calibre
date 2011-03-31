@@ -71,7 +71,7 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.mobi" \
  --title "${TITLE}" \
  -vv \
  --debug-pipeline debugdir/mobi \
- | tee mobidebug.log
+ | tee debugdir/mobidebug.log
 
 [[ ${PDF} -eq 1 ]] && \
 ebook-convert "${RECIPE}" "${RECIPE_NAME}.pdf" \
@@ -87,4 +87,4 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.pdf" \
  --margin-right 72.0  \
  -vv \
  --debug-pipeline debugdir/pdf \
- | tee pdfdebug.log
+ | tee debugdir/pdfdebug.log

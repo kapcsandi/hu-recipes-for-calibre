@@ -85,6 +85,9 @@ class NolHuRovatokkulfold(BasicNewsRecipe):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:
+                if article.url.find('nolblog') > 1:
+                    feed.articles.remove(article)
+
                 article.url='http://'+self.convert_adurls(article.url)
 
         return feeds

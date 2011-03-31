@@ -59,12 +59,12 @@ class NolHuRovatok(BasicNewsRecipe):
                     replace('0B','.').\
                     replace('0C','/').\
                     replace('0E','-').\
-                    replace('0I','_')
+                    replace('0I','_').\
+                    replace('0A','0')
             url=url[url.rfind('nol.hu'):]
 
             if url.rfind('.htm'):
                 url=url[:url.rfind('/')]
-            url=re.sub(r'^(.*?)(\d\d)A(\d\d\d)A(\d\d\d)(-.*?)','\\1\\2\\3\\4\\5',url)
 
         return url
 
@@ -92,6 +92,9 @@ class NolHuRovatok(BasicNewsRecipe):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:
+                if article.url.find('nolblog') > 1:
+                    feed.articles.remove(article)
+
                 article.url='http://'+self.convert_adurls(article.url)
 
         return feeds

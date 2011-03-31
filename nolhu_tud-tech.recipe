@@ -4,17 +4,18 @@ from calibre.constants import config_dir, CONFIG_DIR_MODE
 import os, os.path, urllib
 from hashlib import md5
 
-class NolHuTopTenOneDay(BasicNewsRecipe):
+class NolHuRovatoktud-tech(BasicNewsRecipe):
     __author__              = 'Zsolt Botykai'
-    title                   = u'NOL.hu napi top 10'
-    description             = u'nol.hu/feed/top10-olvasott-1nap.rss'
+    title                   = u'NOL.hu rovatok'
+    description             = u'A Népszabadság főbb rovatai...'
     oldest_article          = 10000
     max_articles_per_feed   = 10000
     language                = 'hu'
     remove_javascript       = True
     remove_empty_feeds      = True
     no_stylesheets          = True
-    feeds                   = [(u'NOL.hu napi top 10', u'http://nol.hu/feed/top10-olvasott-1nap.rss')]
+    feeds                   = [(u'Tud-Tech', u'http://nol.hu/feed/tud-tech.rss'),
+                              ]
     remove_javascript       = True
     use_embedded_content    = False
 

@@ -5,6 +5,5 @@ ebook-convert "${1}" "debugdir/${RECIPE_NAME}/" \
  --smarten-punctuation \
  --change-justification justify \
  -vv \
- --debug-pipeline debugdir \
- --test \
+ --debug-pipeline debugdir ${2} \
  | tee debugdir/debug.log

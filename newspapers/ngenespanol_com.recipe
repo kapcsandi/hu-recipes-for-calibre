@@ -1,0 +1,41 @@
+import string, re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.constants import config_dir, CONFIG_DIR_MODE
+import os, os.path, urllib
+from hashlib import md5
+
+class NgenespanolComRecipe(BasicNewsRecipe):
+    __author__              = 'Zsolt Botykai'
+    title                   = u'NG en español'
+    description             = u'NG en español'
+    oldest_article          = 10000
+    max_articles_per_feed   = 10000
+    language                = 'es'
+    remove_javascript       = True
+    remove_empty_feeds      = True
+    no_stylesheets          = True
+    feeds                   = [(u'NG en español', u'http://ngenespanol.com/feed/'),
+                              ]
+    remove_javascript       = True
+    use_embedded_content    = False
+
+    extra_css = '''
+                    body { background-color: white; color: black }
+                '''
+
+    masthead_url='http://ngenespanol.com/logos-NG-blanco.png'
+
+    preprocess_regexps      = [
+        (re.compile(r'<body.*?<div class="post"', re.DOTALL|re.IGNORECASE),
+         lambda match: '<body><div class="post"'),
+        (re.compile(r'<span class="tags".*?</body>', re.DOTALL|re.IGNORECASE),
+         lambda match: '</body>'),
+    ]
+
+    remove_tags = [
+                       dict(name='span', attrs={'class':['addcomment',\
+                                                         'comments']})
+                  ]
+
+    def get_cover_url(self):
+        return 'http://ngenespanol.com/logos-NG-blanco.png'

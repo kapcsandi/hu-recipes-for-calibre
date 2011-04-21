@@ -6,15 +6,15 @@ from hashlib import md5
 
 class IndexHuKulfold(BasicNewsRecipe):
     __author__              = 'Zsolt Botykai'
-    title                   = u'Index.hu Belföld'
-    description             = u'Index.hu Belföld rovat'
+    title                   = u'Index.hu Külföld'
+    description             = u'Index.hu Külföld rovat'
     oldest_article          = 10000
     max_articles_per_feed   = 10000
     language                = 'hu'
     remove_javascript       = True
     remove_empty_feeds      = True
     no_stylesheets          = True
-    feeds                   = [(u'Index.hu Belföld',  u'http://index.hu/kulfold/rss/default/'),
+    feeds                   = [(u'Index.hu Külföld',  u'http://index.hu/kulfold/rss/default/'),
                               ]
     remove_javascript       = True
     use_embedded_content    = False

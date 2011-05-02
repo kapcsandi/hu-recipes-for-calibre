@@ -69,14 +69,21 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.mobi" \
  --change-justification justify \
  --comments "${TITLE}" \
  --title "${TITLE}" \
- -vv \
- --debug-pipeline debugdir/mobi \
+ -v \
+ --debug-pipeline debugdir/${RECIPE_NAME} \
  | tee debugdir/mobidebug.log
 
+if [[ -s debugdir/${RECIPE_NAME}/index.html ]] ; then
+    TOPDF=debugdir/${RECIPE_NAME}/index.html
+else
+    TOPDF=${RECIPE}
+fi
+
 [[ ${PDF} -eq 1 ]] && \
-ebook-convert "${RECIPE}" "${RECIPE_NAME}.pdf" \
+ebook-convert "${TOPDF}" "${RECIPE_NAME}.pdf" \
  --smarten-punctuation  \
  --change-justification justify \
+ --extra-css 'body { background-color: white; color: black; }'
  --paper-size a4  \
  --pretty-print  \
  --preserve-cover-aspect-ratio  \
@@ -85,6 +92,5 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.pdf" \
  --margin-top 72.0  \
  --margin-left 72.0  \
  --margin-right 72.0  \
- -vv \
- --debug-pipeline debugdir/pdf \
+ -v \
  | tee debugdir/pdfdebug.log

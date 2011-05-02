@@ -73,14 +73,14 @@ ebook-convert "${RECIPE}" "${RECIPE_NAME}.mobi" \
  --debug-pipeline debugdir/${RECIPE_NAME} \
  | tee debugdir/mobidebug.log
 
-if [[ -s debugdir/${RECIPE_NAME}/index.html ]] ; then
-    TOPDF=debugdir/${RECIPE_NAME}/index.html
+if [[ -s debugdir/${RECIPE_NAME}/processed/index.html ]] ; then
+    FROMHTM=debugdir/${RECIPE_NAME}/processed/index.html
 else
-    TOPDF=${RECIPE}
+    FROMHTM=${RECIPE}
 fi
 
 [[ ${PDF} -eq 1 ]] && \
-ebook-convert "${TOPDF}" "${RECIPE_NAME}.pdf" \
+ebook-convert "${FROMHTM}" "${RECIPE_NAME}.pdf" \
  --smarten-punctuation  \
  --change-justification justify \
  --extra-css 'body { background-color: white; color: black; }'

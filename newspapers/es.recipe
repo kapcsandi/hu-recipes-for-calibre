@@ -54,7 +54,7 @@ class EletEsIrodalom(BasicNewsRecipe):
                           (re.compile(r'<p align="left"'), lambda m: '<p')
                          ]
 
-    masthead_url='http://www.es.hu/images/logo.jpg'
+    #masthead_url='http://www.es.hu/images/logo.jpg'
 
     def get_cover_url(self):
         return 'http://www.es.hu/images/logo.jpg'

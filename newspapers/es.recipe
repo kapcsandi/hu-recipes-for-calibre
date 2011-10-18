@@ -51,10 +51,11 @@ class EletEsIrodalom(BasicNewsRecipe):
                 '''
 
     preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
-                          (re.compile(r'<p align="left"'), lambda m: '<p')
+                          (re.compile(r'<p align="left"'), lambda m: '<p'),
+                          (re.compile(r'<a href="/"><img src="images/logo.jpg".*?/></a>'), lambda m: '')
                          ]
 
-    #masthead_url='http://www.es.hu/images/logo.jpg'
+    masthead_url='http://www.es.hu/images/logo.jpg'
 
     def get_cover_url(self):
         return 'http://www.es.hu/images/logo.jpg'
@@ -136,7 +137,7 @@ class EletEsIrodalom(BasicNewsRecipe):
                 rmdivs.extract()
 
         orig_title = soup.find('div', attrs={'class':'doc_title'})
-        page_title = self.tag_to_string(orig_title).capitalize()
+        page_title = self.tag_to_string(orig_title)
 
         if page_title:
             page_author = soup.find('div', attrs={'class':'doc_author'})
@@ -144,7 +145,7 @@ class EletEsIrodalom(BasicNewsRecipe):
                 author_name = self.tag_to_string(page_author)
                 page_author.extract()
                 page_title = capwords(author_name) + " - " + \
-                             page_title.capitalize()
+                             page_title
 
                                     
                 

@@ -1,4 +1,6 @@
 *.mobi
 *.pdf
 *.log
+*.rtf
+debugdir
 debugdir/*

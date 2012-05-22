@@ -24,38 +24,46 @@ class EletEsIrodalom(BasicNewsRecipe):
     remove_javascript       = True
     remove_empty_feeds      = True
     no_stylesheets          = True
-
-    remove_tags = [
-                       dict(name='div', attrs={'id':[ 'right', \
-                                                         'banner', \
-                                                         'head_left', \
-                             'head_right', \
-                             'menu', \
-                             'foot', \
-                             'leaddocument' \
-                             'separator' \
-                             'left' \
-                       ]}) , 
-                       dict(name='div', attrs={'class':[ 'skybanner', \
-                             'clearfloat' \
-                             'separator' \
-                             'almenu' \
-                       ]})
-               ]
+    #needs_subscription      = True
+    auto_cleanup            = True
+    #auto_cleanup_keep       = True
+    publication_type        = 'magazine'
 
     # without the background color setup, the conversion to pdf produced 
     # black pages with white text 
     extra_css = '''
-                    body { background-color: white; color: black }
-                    p { text-align: justify; }
+                    body { background-color: white; color: black; }
+                    p { text-align: justify; margin_top: 0px; }
                 '''
 
-    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
-                          (re.compile(r'<p align="left"'), lambda m: '<p'),
-                          (re.compile(r'<a href="/"><img src="images/logo.jpg".*?/></a>'), lambda m: '')
-                         ]
-
     masthead_url='http://www.es.hu/images/logo.jpg'
+
+    def postprocess_html(self, soup, first):
+        html_title=soup.find('title').string
+        new_html_title=html_title.replace(u" | ÉLET ÉS IRODALOM","")
+        new_title_tag=Tag(soup, 'title')
+        new_title_tag.insert(0,new_html_title)
+        soup.find('title').replaceWith(new_title_tag)
+        h2_title=soup.find('h2').string
+        new_h2_title=h2_title.replace(u" | ÉLET ÉS IRODALOM","")
+        new_h2=Tag(soup, 'h2')
+        new_h2.insert(0,new_h2_title)
+        soup.find('h2').replaceWith(new_h2)
+        for para in soup.findAll('p'):
+            para['height']=1
+
+
+        return soup
+
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('http://www.es.hu/')
+        br.select_form(name='userfrmlogin')
+        br['cusername']   = 'zsoltika@gmail.com'
+        br['cpassword'] = 'zsoltika@gmail.com'
+        br.submit()
+        return br
 
     def get_cover_url(self):
         return 'http://www.es.hu/images/logo.jpg'
@@ -78,6 +86,9 @@ class EletEsIrodalom(BasicNewsRecipe):
         for section in soup.findAll('div', attrs={'class':'fpdocument'}):
             section_title = section.find('a', attrs={'class':'rovat'})
             section_title = string.capwords(self.tag_to_string(section_title))
+            if section_title == 'Szabadpolc':
+                continue
+
             articles = []
             self.log('Found section: ', section_title)
             article_found = section.find('li')
@@ -130,76 +141,6 @@ class EletEsIrodalom(BasicNewsRecipe):
 
         return feeds
 
-    def preprocess_html(self, soup):
-
-        for rmstyles in ['float: right;margin-left: 5px; margin-bottom: 5px;', 'doc_tags']:
-            for rmdivs in soup.findAll('div', attrs={'style':rmstyles}): 
-                rmdivs.extract()
-
-        orig_title = soup.find('div', attrs={'class':'doc_title'})
-        page_title = self.tag_to_string(orig_title)
-
-        if page_title:
-            page_author = soup.find('div', attrs={'class':'doc_author'})
-            if page_author:
-                author_name = self.tag_to_string(page_author)
-                page_author.extract()
-                page_title = capwords(author_name) + " - " + \
-                             page_title
-
-                                    
-                
-
-        tag = Tag(soup, "h2")
-        tag['class'] = "headline"
-        tag.insert(0, page_title)
-        orig_title.replaceWith(tag)
-
-        orig_subtitle = soup.find('div', attrs={'class':'doc_subtitle'})
-        if orig_subtitle:
-            subtitle = self.tag_to_string(orig_subtitle)
-            tag = Tag(soup, "h3")
-            tag['class'] = "headline"
-            tag.insert(0, capwords(subtitle))
-            orig_subtitle.replaceWith(tag)
-    
-        orig_issue =  soup.find('div', attrs={'class':'lapszam'})
-        if orig_issue:
-            issue = self.tag_to_string(orig_issue)
-            tag = Tag(soup, "h5")
-            tag['class'] = "headline"
-            tag.insert(0, issue)
-            orig_issue.replaceWith(tag)
-                
-        return soup
-
-    def postprocess_html(self, soup, first):
-       
-        favicon = soup.find('link', href=True)
-        url = favicon['href']
-        self.log("found favicon with", url)
-        if url == "favicon.ico":
-            favicon.extract()
-
-        for rmattrs in [  'almenu', 'doc_author_docs', 'doc_print' ]:
-            for rmdivs in soup.findAll('div', attrs={'class':rmattrs}): 
-                rmdivs.extract()
-
-        for pz in soup.findAll('p', attrs={'align':'left'}): 
-            para = self.tag_to_string(pz)
-            if re.search('^( |&#160;)*$',para):
-                tag = Tag(soup, "div")
-                tag['class'] = "removable"
-                tag.insert(0, '')
-                pz.replaceWith(tag)
-
-            for brz in soup.findAll('br'):
-                tag = Tag(soup, "div")
-                tag['class'] = "removable"
-                tag.insert(0, '')
-                brz.replaceWith(tag)
-
-        return soup
 
     
 # Release: v20110325

@@ -8,7 +8,7 @@ buttons, ads...)
 '''
 
 # The recipe modifies the case of titles and searches via regexs
-import string, re
+import string, re, os
 from string import capwords
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -16,24 +16,25 @@ from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 class EletEsIrodalom(BasicNewsRecipe):
 
-    title                   = u"Élet és Irodalom"
-    __author__              = 'Zsolt Botykai'
-    description             = u"Élet és Irodalom"
-    INDEX                   = 'http://www.es.hu/'
-    language                = 'hu'
-    remove_javascript       = True
-    remove_empty_feeds      = True
-    no_stylesheets          = True
-    #needs_subscription      = True
-    auto_cleanup            = True
-    #auto_cleanup_keep       = True
-    publication_type        = 'magazine'
+    title               = u"Élet és Irodalom"
+    __author__          = 'Zsolt Botykai'
+    description         = u"Élet és Irodalom"
+    INDEX               = 'http://www.es.hu/'
+    language            = 'hu'
+    remove_javascript   = True
+    remove_empty_feeds  = True
+    no_stylesheets      = True
+    #needs_subscription = True
+    auto_cleanup        = True
+    #auto_cleanup_keep  = True
+    publication_type    = 'magazine'
+    encoding            = 'iso-8859-2'
 
     # without the background color setup, the conversion to pdf produced 
     # black pages with white text 
     extra_css = '''
-                    body { background-color: white; color: black; }
-                    p { text-align: justify; margin_top: 0px; }
+                    body { background-color : white   ; color      : black ; }
+                    p    { text-align       : justify ; margin_top : 0px   ; }
                 '''
 
     masthead_url='http://www.es.hu/images/logo.jpg'
@@ -57,11 +58,11 @@ class EletEsIrodalom(BasicNewsRecipe):
 
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.es.hu/')
         br.select_form(name='userfrmlogin')
-        br['cusername']   = 'zsoltika@gmail.com'
-        br['cpassword'] = 'zsoltika@gmail.com'
+        br['cusername'] = os.environ['ES_USER']
+        br['cpassword'] = os.environ['ES_PASS']
         br.submit()
         return br
 
@@ -71,76 +72,80 @@ class EletEsIrodalom(BasicNewsRecipe):
     def parse_index(self):
         articles = []
 
-        soup = self.index_to_soup(self.INDEX)
-        section_title = soup.find('div', attrs={'class':'fpdocument'})
-        if section_title is not None:
-            section_name = self.tag_to_string(section_title).strip().split()[-2:]
-            if section_name:
-                self.timefmt = ' [%s]'%(' '.join(section_name))
+        soup     = self.index_to_soup(self.INDEX)
+        datediv  = soup.find('div', attrs         = {'class':'selectContainer'})
+        datespan = datediv.find('span')
+        gotdate  = self.tag_to_string(datespan)
+        self.log("Found date: ", gotdate )
 
         cover = soup.find('img', src=True, attrs={'class':'cover'})
         if cover is not None:
             self.cover_url = cover['src']
 
         feeds = []
-        for section in soup.findAll('div', attrs={'class':'fpdocument'}):
-            section_title = section.find('a', attrs={'class':'rovat'})
-            section_title = string.capwords(self.tag_to_string(section_title))
+        for section in soup.findAll('a', attrs={'class':'rovat'}):
+            section_title = string.capwords(self.tag_to_string(section))
             if section_title == 'Szabadpolc':
                 continue
 
-            articles = []
+            sect_url="http://www.es.hu" + section['href']
             self.log('Found section: ', section_title)
-            article_found = section.find('li')
-            if article_found:
-                for article in section.findAll('li'):
-                    article_title = self.tag_to_string(article).replace(": "," - ")
-                    article_title = capwords(article_title)
-                    a = article.find('a', href=True)
-                    url = a['href']
-                    if url.startswith('/'):
-                        url = 'http://www.es.hu'+url
+            self.log('Found URL: ', sect_url )
+            articles = []
+            sectsoup = self.index_to_soup(sect_url)
 
-                    p = article.find('p', attrs={'align':'left'})
-                    desc = None
-                    logurl='#'+url+'#'
-                    self.log('1. \tFound article: ', article_title, 'at', logurl)
+            get_sect_articles(self, sectsoup, articles,gotdate)
 
-                    if p is not None:
-                        desc = self.tag_to_string(p)
-                        self.log('\t\t', desc)
+            has_sp=sectsoup.findAll('div', attrs={'id':'pager'})
+            self.log(has_sp)
 
-                    articles.append({'title':article_title, 'url':url, 'description':desc,
-                        'date':''})
-            else:
-                    article = section.find('a', attrs={'class':'title'})
-                    if article:
-                            article_title = self.tag_to_string(article).replace(": "," - ")
-                            article_title = capwords(article_title)
-                            article_author = section.find('div', attrs={'class':'author'})
-
-                            if article_author:
-                                    author_name = capwords(self.tag_to_string(article_author))
-
-                                    if author_name != '':
-                                            article_title = author_name + ' - ' + article_title
-
-                            a = section.find('a', href=True, attrs={'class':'title'})
-                            url = a['href']
-
-                            if url.startswith('/'):
-                                url = 'http://www.es.hu'+url
-
-                            logurl='#'+url+'#'
-                            self.log('2. \tFound article:', article_title , 'at', logurl)
-
-                            articles.append({'title':article_title, 'url':url, 'description':'',
-                                'date':''})
+            if has_sp:
+              for sp in sectsoup.findAll('div', attrs={'id':'pager'}):
+                for ps in sp.findAll('a', attrs={'class':'pagerbutton'}):
+                  ps_text=self.tag_to_string(ps)
+                  self.log(ps_text)
+                  if re.match(r'\d+$',ps_text) and ps['href']:
+                    nl    = 'http://www.es.hu' + ps['href']
+                    subpg = self.index_to_soup(nl)
+                    get_sect_articles(self,subpg,articles,gotdate)
 
             feeds.append((section_title, articles))
 
+        self.log(feeds)
         return feeds
 
+def get_sect_articles(self, sectsoup, articles,gotdate):        
+ for div in sectsoup.findAll('div'):
 
-    
-# Release: v20110325
+   art_title = ""
+   art_url   = ""
+   art_au    = ""
+
+   try:
+     claz=div['class']
+   except KeyError:
+     claz = ""
+
+   if claz == "title" :
+     art_t=div.find('a', attrs={'class':'rovat_title'})
+
+     if art_t:
+       art_title = self.tag_to_string(art_t).strip()
+       art_url   = "http://www.es.hu" + art_t["href"]
+     
+     arturl = art_url
+     arttit = art_title
+
+   if claz =="rovat_foot" :
+     art_au = self.tag_to_string(div)
+     art_au = re.sub(r'a *?szerz.*?tov.*?bbi *?cikkei','',art_au)
+     art_au = re.sub(r'(tov.*?bb) *?\1 *?$','',art_au)
+     art_au = art_au.strip()
+     # self.log('Found art_tit2: ', arttit)
+     # self.log('Found art2  URL: ', arturl)
+     # self.log('Found article with author: ', art_au)
+   
+     articles.append({'title':art_au + ' - ' + arttit, 'url':arturl, 'description':'','date': gotdate})
+
+   #self.log(articles)
+   #return articles
